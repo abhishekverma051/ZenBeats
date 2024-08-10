@@ -1,7 +1,6 @@
 import React, { createContext, useEffect, useState } from "react";
 import { Alert } from "react-native";
 import * as MediaLibrary from "expo-media-library";
-
 export const AudioContext = createContext();
 
 const AppProvider = ({ children }) => {

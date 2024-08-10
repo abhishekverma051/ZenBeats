@@ -1,3 +1,4 @@
+import React, { useContext, useState } from "react";
 import {
   View,
   Text,
@@ -5,14 +6,23 @@ import {
   FlatList,
   Image,
   TouchableOpacity,
+  Dimensions,
 } from "react-native";
-import React, { useContext } from "react";
 import { AudioContext } from "../../context/AudioProvider";
 import Entypo from "@expo/vector-icons/Entypo";
 import OptionModal from "../../components/OptionModal";
+import { LinearGradient } from "expo-linear-gradient";
+import SearchBar from "../../components/SearchBar";
+import color from "../../miscs/color";
+
+const { width } = Dimensions.get("window");
 
 const AudioList = () => {
   const { audioFiles } = useContext(AudioContext);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
   const defaultImage =
     "https://c8.alamy.com/comp/DBR4FJ/dj-headphones-random-music-notes-splash-illustration-vector-file-layered-DBR4FJ.jpg";
 
@@ -26,40 +36,76 @@ const AudioList = () => {
     }
   };
 
+  const handleThreeDotsPress = (item) => {
+    setSelectedItem(item);
+    setModalVisible(true);
+  };
+
+  const filteredAudioFiles = audioFiles.filter((item) =>
+    item.filename.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const renderItem = ({ item }) => {
     return (
-      <TouchableOpacity>
-        <View style={styles.item}>
-          <Image style={styles.image} source={{ uri: defaultImage }} />
-          <View style={styles.detail}>
-            <Text style={styles.filename}>{item.filename}</Text>
-            <Text style={styles.duration}>{formatDuration(item.duration)}</Text>
+      <View style={styles.container}>
+        <TouchableOpacity style={styles.container}>
+          <View style={styles.item}>
+            <Image style={styles.image} source={{ uri: defaultImage }} />
+            <View style={styles.detail}>
+              <Text style={styles.filename}>{item.filename}</Text>
+              <Text style={styles.duration}>
+                {formatDuration(item.duration)}
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={styles.threeDots}
+              onPress={() => handleThreeDotsPress(item)}
+            >
+              <Entypo name="dots-three-vertical" size={24} color="black" />
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity style={styles.threeDots}>
-            <Entypo name="dots-three-vertical" size={24} color="black" />
-          </TouchableOpacity>
-        </View>
-      </TouchableOpacity>
+        </TouchableOpacity>
+      </View>
     );
   };
 
   return (
-    <>
+    <LinearGradient colors={color.LG} style={styles.linearGradient}>
+      <View style={styles.topHead}>
+        <TouchableOpacity>
+          <Entypo name="list" size={44} color="white" />
+        </TouchableOpacity>
+
+        <View style={styles.searchContainer}>
+          <SearchBar query={searchQuery} onQueryChange={setSearchQuery} />
+        </View>
+      </View>
+
       <FlatList
-        data={audioFiles}
+        data={filteredAudioFiles}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
       />
-      <OptionModal visible={true} />
-    </>
+      <OptionModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        item={selectedItem}
+      />
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
+  linearGradient: {
+    flex: 1,
+  },
+  container: {
+    flex: 1,
+  },
   item: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
+    borderBottomColor: "#C7DBE6",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -67,8 +113,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
-    borderRadius: 7,
-    padding:12
+    marginBottom: 5,
+    backgroundColor: "#C7DBE6",
   },
   image: {
     width: 50,
@@ -90,6 +136,15 @@ const styles = StyleSheet.create({
   },
   threeDots: {
     marginRight: 12,
+  },
+  topHead: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 15,
+  },
+  searchContainer: {
+    flex: 1,
+    marginLeft: 15,
   },
 });
 

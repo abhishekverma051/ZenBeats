@@ -1,51 +1,92 @@
-import { View, Text ,Modal,StatusBar,StyleSheet} from 'react-native'
-import React from 'react'
+import React from "react";
+import {
+  View,
+  Text,
+  Modal,
+  StatusBar,
+  StyleSheet,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  Dimensions,
+} from "react-native";
 
-export default function OptionModal({visible}) {
+const { width } = Dimensions.get("window");
+
+export default function OptionModal({ visible, onClose, item }) {
   return (
     <>
       <StatusBar hidden />
-      <Modal transparent visible={visible}>
-        <View style={styles.container}>
-          <Text style={styles.title}>title of the song</Text>
-          <View style={styles.text}>
-            <Text style={styles.text1}>Play Later</Text>
-            <Text style={styles.text1}>Add to Playlist</Text>
-            <Text style={styles.text1}>Delete</Text>
+      <TouchableWithoutFeedback onPress={onClose}>
+        <Modal
+          animationType="slide"
+          transparent
+          visible={visible}
+          onRequestClose={onClose}
+        >
+          <View style={styles.overlay}>
+            <View style={styles.container}>
+              <Text style={styles.title}>{item ? item.filename : "Title"}</Text>
+
+              <View style={styles.options}>
+                <TouchableOpacity style={styles.button} onPress={onClose}>
+                  <Text style={styles.buttonText}>Play Later</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={onClose}>
+                  <Text style={styles.buttonText}>Add to Playlist</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={onClose}>
+                  <Text style={styles.buttonText}>Delete</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
+      </TouchableWithoutFeedback>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  overlay: {
     flex: 1,
-
-    position: "absolute",
-    bottom: 0,
-    right: 0,
-    left: 0,
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.4)",
+  },
+  container: {
+     
     backgroundColor: "white",
     borderTopRightRadius: 18,
+    borderTopLeftRadius: 18,
+    padding: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
-    borderRadius: 7,
-    padding: 12,
+    elevation: 5,
   },
   title: {
-    fontSize: 34,
+    fontSize: 20,
     fontWeight: "bold",
-    justifyContent: "center",
+    marginBottom: 20,
+    textAlign: "center",
   },
-  text: {
-    marginTop: 14,
+  options: {
+    marginTop: 10,
   },
-  text1: {
-    fontSize: 18,
-    margin: 12,
+  button: {
+    backgroundColor: "#FAFCF8",
+    padding: 15,
+    borderRadius: 7,
+    marginBottom: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  buttonText: {
+    fontSize: 16,
+    textAlign: "center",
+    color: "#333",
   },
 });
