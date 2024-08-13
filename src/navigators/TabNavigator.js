@@ -24,6 +24,7 @@ export default function AppNavigator() {
         headerBackground: () => <View style={{ backgroundColor: color.UP }} />,
         headerTintColor: "white",
         tabBarActiveTintColor: "white",
+        headerShown:false
       }}
     >
       <Tab.Screen

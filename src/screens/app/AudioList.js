@@ -7,21 +7,23 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { AudioContext } from "../../context/AudioProvider";
 import Entypo from "@expo/vector-icons/Entypo";
-import OptionModal from "../../components/OptionModal";
 import { LinearGradient } from "expo-linear-gradient";
 import SearchBar from "../../components/SearchBar";
 import color from "../../miscs/color";
-
+import { useNavigation } from "@react-navigation/native";
+import OptionModal from "../../components/OptionModal";
 const { width } = Dimensions.get("window");
 
 const AudioList = () => {
-  const { audioFiles } = useContext(AudioContext);
+  const { audioFiles, setAudioFiles } = useContext(AudioContext); // Ensure setAudioFiles is available
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const navigation = useNavigation();
 
   const defaultImage =
     "https://c8.alamy.com/comp/DBR4FJ/dj-headphones-random-music-notes-splash-illustration-vector-file-layered-DBR4FJ.jpg";
@@ -41,6 +43,29 @@ const AudioList = () => {
     setModalVisible(true);
   };
 
+  const handlePlay = (item) => {
+    navigation.navigate("Player", {
+      audioUri: item.uri,
+      filename: item.filename,
+    });
+  };
+
+  const handleAddToPlaylist = () => {
+    if (selectedItem) {
+      setModalVisible(false);
+      navigation.navigate("PlaylistScreen", { song: selectedItem });
+    }
+  };
+
+  const handleDelete = () => {
+    if (selectedItem) {
+      setAudioFiles((prevFiles) =>
+        prevFiles.filter((file) => file.id !== selectedItem.id)
+      );
+      setSelectedItem(null);
+    }
+  };
+
   const filteredAudioFiles = audioFiles.filter((item) =>
     item.filename.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -48,7 +73,7 @@ const AudioList = () => {
   const renderItem = ({ item }) => {
     return (
       <View style={styles.container}>
-        <TouchableOpacity style={styles.container}>
+        <TouchableWithoutFeedback onPress={() => handlePlay(item)}>
           <View style={styles.item}>
             <Image style={styles.image} source={{ uri: defaultImage }} />
             <View style={styles.detail}>
@@ -64,7 +89,7 @@ const AudioList = () => {
               <Entypo name="dots-three-vertical" size={24} color="black" />
             </TouchableOpacity>
           </View>
-        </TouchableOpacity>
+        </TouchableWithoutFeedback>
       </View>
     );
   };
@@ -72,7 +97,7 @@ const AudioList = () => {
   return (
     <LinearGradient colors={color.LG} style={styles.linearGradient}>
       <View style={styles.topHead}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.openDrawer()}>
           <Entypo name="list" size={44} color="white" />
         </TouchableOpacity>
 
@@ -90,6 +115,8 @@ const AudioList = () => {
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         item={selectedItem}
+        onAddToPlaylist={handleAddToPlaylist}
+        onDelete={handleDelete}
       />
     </LinearGradient>
   );

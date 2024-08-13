@@ -1,4 +1,4 @@
-{
+{{
   "assets": [
     {
       "albumId": "540528482",
@@ -161,6 +161,122 @@
   "hasNextPage": false,
   "totalCount": 13
 }
-
-
- 
+{
+   "_coalesceStatusUpdatesInMillis":100,
+   "_errorCallback":[
+      "Function anonymous"
+   ],
+   "_eventEmitter":{
+      "__expo_module_name__":"ExponentAV",
+      "addListener":[
+         "Function addListener"
+      ],
+      "emit":[
+         "Function emit"
+      ],
+      "getAudioRecordingStatus":[
+         "Function getAudioRecordingStatus"
+      ],
+      "getAvailableInputs":[
+         "Function getAvailableInputs"
+      ],
+      "getCurrentInput":[
+         "Function getCurrentInput"
+      ],
+      "getPermissionsAsync":[
+         "Function getPermissionsAsync"
+      ],
+      "getStatusForSound":[
+         "Function getStatusForSound"
+      ],
+      "getStatusForVideo":[
+         "Function getStatusForVideo"
+      ],
+      "listenerCount":[
+         "Function listenerCount"
+      ],
+      "loadForSound":[
+         "Function loadForSound"
+      ],
+      "loadForVideo":[
+         "Function loadForVideo"
+      ],
+      "pauseAudioRecording":[
+         "Function pauseAudioRecording"
+      ],
+      "prepareAudioRecorder":[
+         "Function prepareAudioRecorder"
+      ],
+      "removeAllListeners":[
+         "Function removeAllListeners"
+      ],
+      "removeListener":[
+         "Function removeListener"
+      ],
+      "removeSubscription":[
+         "Function removeSubscription"
+      ],
+      "replaySound":[
+         "Function replaySound"
+      ],
+      "replayVideo":[
+         "Function replayVideo"
+      ],
+      "requestPermissionsAsync":[
+         "Function requestPermissionsAsync"
+      ],
+      "setAudioIsEnabled":[
+         "Function setAudioIsEnabled"
+      ],
+      "setAudioMode":[
+         "Function setAudioMode"
+      ],
+      "setInput":[
+         "Function setInput"
+      ],
+      "setStatusForSound":[
+         "Function setStatusForSound"
+      ],
+      "setStatusForVideo":[
+         "Function setStatusForVideo"
+      ],
+      "startAudioRecording":[
+         "Function startAudioRecording"
+      ],
+      "stopAudioRecording":[
+         "Function stopAudioRecording"
+      ],
+      "unloadAudioRecorder":[
+         "Function unloadAudioRecorder"
+      ],
+      "unloadForSound":[
+         "Function unloadForSound"
+      ],
+      "unloadForVideo":[
+         "Function unloadForVideo"
+      ]
+   },
+   "_internalErrorCallback":[
+      "Function anonymous"
+   ],
+   "_internalMetadataUpdateCallback":[
+      "Function anonymous"
+   ],
+   "_internalStatusUpdateCallback":[
+      "Function anonymous"
+   ],
+   "_key":null,
+   "_lastStatusUpdate":null,
+   "_lastStatusUpdateTime":null,
+   "_loaded":false,
+   "_loading":false,
+   "_onAudioSampleReceived":null,
+   "_onMetadataUpdate":null,
+   "_onPlaybackStatusUpdate":null,
+   "_subscriptions":[
+      
+   ],
+   "getStatusAsync":[
+      "Function anonymous"
+   ]
+}}

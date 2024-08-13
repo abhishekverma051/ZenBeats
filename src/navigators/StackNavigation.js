@@ -1,9 +1,12 @@
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
-import AppNavigator from "./TabNavigator"; // Your Tab Navigator
+import AppNavigator from "./TabNavigator";  
 import SplashScreen from "../screens/auth/SplashScreen";
+import Player from "../screens/app/PlayList";
+import PlaylistScreen from "../screens/app/PlayList";
+import PlaylistDetailScreen from "../screens/app/PlaylistDetailScreen";
 
-const Stack = createStackNavigator();
+ const Stack = createStackNavigator();
 
 export default function RootNavigator() {
   return (
@@ -15,6 +18,9 @@ export default function RootNavigator() {
     >
       <Stack.Screen name="Splash" component={SplashScreen} />
       <Stack.Screen name="Main" component={AppNavigator} />
+      <Stack.Screen name="Player" component={Player}  options={{ headerShown: false }}/>
+      <Stack.Screen name="PlaylistScreen" component={PlaylistScreen} />
+      <Stack.Screen name="PlaylistDetailScreen" component={PlaylistDetailScreen} />
     </Stack.Navigator>
   );
 }

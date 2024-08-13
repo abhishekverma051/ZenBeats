@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   View,
   Text,
@@ -7,34 +7,45 @@ import {
   StyleSheet,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  Dimensions,
-} from "react-native";
+} from 'react-native';
 
-const { width } = Dimensions.get("window");
+export default function OptionModal({ visible, onClose, item, onAddToPlaylist ,onDelete}) {
+  if (!visible) return null;
+  const handleAddToPlaylist = () => {
+    if (onAddToPlaylist) {
+      onAddToPlaylist();
+      onClose();
+    }
+  };
+  const handleDelete = () =>{
+    if(onDelete){
+      onDelete();
+      onClose();
+    }
+  }
 
-export default function OptionModal({ visible, onClose, item }) {
   return (
     <>
       <StatusBar hidden />
       <TouchableWithoutFeedback onPress={onClose}>
         <Modal
-          animationType="slide"
+          animationType='slide'
           transparent
           visible={visible}
           onRequestClose={onClose}
         >
           <View style={styles.overlay}>
             <View style={styles.container}>
-              <Text style={styles.title}>{item ? item.filename : "Title"}</Text>
+              <Text style={styles.title}>{item ? item.filename : 'Title'}</Text>
 
               <View style={styles.options}>
-                <TouchableOpacity style={styles.button} onPress={onClose}>
-                  <Text style={styles.buttonText}>Play Later</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button} onPress={onClose}>
+                <TouchableOpacity style={styles.button} onPress={handleAddToPlaylist}>
                   <Text style={styles.buttonText}>Add to Playlist</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.button} onPress={onClose}>
+                <TouchableOpacity style={styles.button}  >
+                  <Text style={styles.buttonText}>Play Later</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={handleDelete}>
                   <Text style={styles.buttonText}>Delete</Text>
                 </TouchableOpacity>
               </View>
@@ -49,16 +60,15 @@ export default function OptionModal({ visible, onClose, item }) {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    justifyContent: "flex-end",
-    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.4)',
   },
   container: {
-     
-    backgroundColor: "white",
+    backgroundColor: 'white',
     borderTopRightRadius: 18,
     borderTopLeftRadius: 18,
     padding: 16,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
@@ -66,19 +76,19 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 20,
-    textAlign: "center",
+    textAlign: 'center',
   },
   options: {
     marginTop: 10,
   },
   button: {
-    backgroundColor: "#FAFCF8",
+    backgroundColor: '#FAFCF8',
     padding: 15,
     borderRadius: 7,
     marginBottom: 10,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
@@ -86,7 +96,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 16,
-    textAlign: "center",
-    color: "#333",
+    textAlign: 'center',
+    color: '#333',
   },
 });

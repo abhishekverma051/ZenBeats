@@ -1,67 +1,304 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import React, { useContext, useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  Dimensions,
+} from "react-native";
+import { AudioContext } from "../../context/AudioProvider";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import color from "../../miscs/color";
-import { FlatList } from "react-native-gesture-handler";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const defaultImage =
-  "https://c8.alamy.com/comp/DBR4FJ/dj-headphones-random-music-notes-splash-illustration-vector-file-layered-DBR4FJ.jpg";
-export default function Player() {
-  const playlists = [
-    {
-      id: "1",
-      title: "Chill Vibes",
-      image: "https://via.placeholder.com/100",
-    },
-    { id: "2", title: "Top Hits", image: "https://via.placeholder.com/100" },
-  ];
-  const renderItem = ({ item }) => {
-    return (
-      <TouchableOpacity
-        style={styles.playlistContainer}
-        onPress={() => navigation.navigate("PlaylistDetail")}
-      >
-        <Image style={styles.playlistImage} source={{ uri: defaultImage }} />
-        <Text style={styles.playlistTitle}>{item.title} </Text>
-      </TouchableOpacity>
+const { width } = Dimensions.get("window");
+
+const PlaylistScreen = () => {
+  const {
+    playlists,
+    addPlaylist,
+    editPlaylist,
+    deletePlaylist,
+    addToPlaylist,
+  } = useContext(AudioContext);
+  const [newPlaylistName, setNewPlaylistName] = useState("");
+  const [selectedPlaylist, setSelectedPlaylist] = useState(null);
+  const [selectedSong, setSelectedSong] = useState(null);
+  const [editingPlaylist, setEditingPlaylist] = useState(null); // for editing a playlist
+  const [editName, setEditName] = useState(""); // new name for editing
+  const navigation = useNavigation();
+  const route = useRoute();
+
+  useEffect(() => {
+    if (route.params?.song) {
+      setSelectedSong(route.params.song);
+    }
+  }, [route.params]);
+
+  useEffect(() => {
+    const loadPlaylists = async () => {
+      try {
+        const playlistsString = await AsyncStorage.getItem("@playlists");
+        if (playlistsString) {
+          const storedPlaylists = JSON.parse(playlistsString);
+          // You need to ensure the playlists are set here correctly.
+        }
+      } catch (error) {
+        console.error("Error loading playlists: ", error);
+      }
+    };
+
+    loadPlaylists();
+  }, []);
+
+  const savePlaylists = async (playlists) => {
+    try {
+      await AsyncStorage.setItem("@playlists", JSON.stringify(playlists));
+    } catch (error) {
+      console.error("Error saving playlists: ", error);
+    }
+  };
+
+  const handleCreatePlaylist = async () => {
+    if (newPlaylistName.trim()) {
+      await addPlaylist(newPlaylistName);
+      setNewPlaylistName("");
+      Alert.alert("Success", `Playlist '${newPlaylistName}' created.`);
+      await savePlaylists(playlists); // Save updated playlists to AsyncStorage
+    } else {
+      Alert.alert("Error", "Please enter a name for the new playlist");
+    }
+  };
+
+  const handleEditPlaylist = async () => {
+    if (editName.trim()) {
+      await editPlaylist(editingPlaylist.id, editName);
+      setEditingPlaylist(null);
+      setEditName("");
+      Alert.alert("Success", "Playlist name updated.");
+      await savePlaylists(playlists); // Save updated playlists to AsyncStorage
+    } else {
+      Alert.alert("Error", "Please enter a new name for the playlist.");
+    }
+  };
+
+  const handleDeletePlaylist = async (playlistId) => {
+    Alert.alert(
+      "Confirm Delete",
+      "Are you sure you want to delete this playlist?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          onPress: async () => {
+            await deletePlaylist(playlistId);
+            await savePlaylists(playlists); // Save updated playlists to AsyncStorage
+          },
+        },
+      ]
     );
   };
 
+  const handleAddToPlaylist = async () => {
+    if (selectedPlaylist && selectedSong) {
+      await addToPlaylist(selectedPlaylist, selectedSong);
+      setSelectedPlaylist(null);
+      Alert.alert("Success", "Song added to the playlist.");
+      navigation.goBack();
+    } else {
+      Alert.alert("Error", "Please select a playlist.");
+    }
+  };
+
+  const handlePlaylistPress = (playlistId) => {
+    navigation.navigate("PlaylistDetailScreen", { playlistId });
+  };
+
+  const renderPlaylistItem = ({ item }) => (
+    <View style={styles.playlistItem}>
+      <TouchableOpacity onPress={() => handlePlaylistPress(item.id)}>
+        <Text style={styles.playlistName}>{item.name}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => {
+          setEditingPlaylist(item);
+          setEditName(item.name);
+        }}
+      >
+        <Ionicons name="create" size={24} color="white" />
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => handleDeletePlaylist(item.id)}>
+        <Ionicons name="trash" size={24} color="white" />
+      </TouchableOpacity>
+    </View>
+  );
+
   return (
-    <LinearGradient colors={color.LG} style={styles.linearGradient}>
-      <FlatList data={playlists} renderItem={renderItem} />
+    <LinearGradient colors={color.LG} style={styles.container}>
+      <View style={styles.innerContainer}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="arrow-back" size={34} color="white" />
+        </TouchableOpacity>
+
+        {editingPlaylist ? (
+          <View style={styles.editContainer}>
+            <Text style={styles.header}>Edit Playlist Name</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="New playlist name"
+              value={editName}
+              onChangeText={setEditName}
+            />
+            <TouchableOpacity
+              style={styles.button1}
+              onPress={handleEditPlaylist}
+            >
+              <Text style={styles.buttonText}>Save Changes</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.button1, { backgroundColor: "#FF0000" }]} // red button for cancel
+              onPress={() => setEditingPlaylist(null)}
+            >
+              <Text style={styles.buttonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <>
+            <Text style={styles.header}>Create Playlist</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="New playlist name"
+              value={newPlaylistName}
+              onChangeText={setNewPlaylistName}
+            />
+            <TouchableOpacity
+              style={styles.button1}
+              onPress={handleCreatePlaylist}
+            >
+              <Text style={styles.buttonText}>Create Playlist</Text>
+            </TouchableOpacity>
+          </>
+        )}
+
+        <Text style={styles.header}>Existing Playlists</Text>
+        <FlatList
+          data={playlists}
+          keyExtractor={(item) => item.id}
+          renderItem={renderPlaylistItem}
+        />
+
+        <Text style={styles.header}>Add Song to Playlist</Text>
+        {selectedSong ? (
+          <View>
+            <Text style={styles.songDetails}>Selected Song:</Text>
+            <Text style={styles.songDetails}>
+              Filename: {selectedSong.filename}
+            </Text>
+            <Text style={styles.songDetails}>
+              Duration: {selectedSong.duration} seconds
+            </Text>
+          </View>
+        ) : (
+          <Text style={styles.songDetails}>No song selected</Text>
+        )}
+
+        <TouchableOpacity style={styles.button} onPress={handleAddToPlaylist}>
+          <Text style={styles.buttonText}>Add to Selected Playlist</Text>
+        </TouchableOpacity>
+      </View>
     </LinearGradient>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  linearGradient: {
-    flex: 1,
-  },
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    padding: 20,
+    backgroundColor: "#000",
   },
-  text: {
+  innerContainer: {
+    flex: 1,
+  },
+  backButton: {
+    position: "absolute",
+    top: 10,
+    left: 10,
+    zIndex: 1,
+  },
+  header: {
     fontSize: 24,
+    fontWeight: "bold",
     color: "#fff",
+    textAlign: "center",
+    marginVertical: 20,
   },
-  playlistContainer: {
-    marginLeft: 13,
-    marginTop: 15,
-    width: 150,
-    height: 150,
+  input: {
+    borderWidth: 1,
+    borderColor: "#fff",
+    borderRadius: 8,
+    padding: 15,
+    marginBottom: 20,
+    color: "white",
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+  },
+  button1: {
+    padding: 15,
+    borderRadius: 8,
+    marginVertical: 8,
+    backgroundColor: "#1DB954",
+    width: "60%",
+    alignSelf: "center",
+    alignItems: "center",
+    elevation: 5,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  playlistItem: {
+    padding: 15,
+    borderRadius: 8,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    marginVertical: 10,
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 15,
-    padding: 10,
-    backgroundColor: "#fff",
-    borderRadius: 10,
+    justifyContent: "space-between",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 5,
+  },
+  playlistName: {
+    fontSize: 18,
+    color: "#fff",
+    fontWeight: "600",
+  },
+  button: {
+    padding: 15,
+    borderRadius: 8,
+    marginTop: 20,
+    width: "80%",
+    alignSelf: "center",
+    backgroundColor: "#1DB954",
+  },
+  songDetails: {
+    color: "#fff",
+    fontSize: 16,
+    marginTop: 10,
+  },
+  editContainer: {
+    marginBottom: 20,
   },
 });
+
+export default PlaylistScreen;
