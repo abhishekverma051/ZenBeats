@@ -19,7 +19,7 @@ import OptionModal from "../../components/OptionModal";
 const { width } = Dimensions.get("window");
 
 const AudioList = () => {
-  const { audioFiles, setAudioFiles } = useContext(AudioContext); // Ensure setAudioFiles is available
+  const { audioFiles, setAudioFiles } = useContext(AudioContext);  
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");

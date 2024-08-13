@@ -5,7 +5,7 @@ import SplashScreen from "../screens/auth/SplashScreen";
 import Player from "../screens/app/PlayList";
 import PlaylistScreen from "../screens/app/PlayList";
 import PlaylistDetailScreen from "../screens/app/PlaylistDetailScreen";
-
+import DrawerNavigation from "./DrawerNavigation";
  const Stack = createStackNavigator();
 
 export default function RootNavigator() {
@@ -18,7 +18,8 @@ export default function RootNavigator() {
     >
       <Stack.Screen name="Splash" component={SplashScreen} />
       <Stack.Screen name="Main" component={AppNavigator} />
-      <Stack.Screen name="Player" component={Player}  options={{ headerShown: false }}/>
+       <Stack.Screen name="Player" component={Player}  options={{ headerShown: false }}/>
+
       <Stack.Screen name="PlaylistScreen" component={PlaylistScreen} />
       <Stack.Screen name="PlaylistDetailScreen" component={PlaylistDetailScreen} />
     </Stack.Navigator>

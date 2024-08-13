@@ -1,13 +1,28 @@
 import React from "react";
-import { View } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createDrawerNavigator } from "@react-navigation/drawer";
 import AudioList from "../screens/app/AudioList";
 import PlayList from "../screens/app/PlayList";
 import Player from "../screens/app/Player";
+import SettingScreen from "../screens/auth/SettingScreen";
 import { MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 import color from "../miscs/color";
 
 const Tab = createBottomTabNavigator();
+const Drawer = createDrawerNavigator();
+
+function DrawerNavigator() {
+  return (
+    <Drawer.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Drawer.Screen name="AudioList" component={AudioList} />
+      <Drawer.Screen name="SettingScreen" component={SettingScreen} />
+    </Drawer.Navigator>
+  );
+}
 
 export default function AppNavigator() {
   return (
@@ -24,12 +39,12 @@ export default function AppNavigator() {
         headerBackground: () => <View style={{ backgroundColor: color.UP }} />,
         headerTintColor: "white",
         tabBarActiveTintColor: "white",
-        headerShown:false
+        headerShown: false,
       }}
     >
       <Tab.Screen
-        name="AudioList"
-        component={AudioList}
+        name="Home"
+        component={DrawerNavigator}
         options={{
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="headset" size={size} color={color} />
@@ -41,7 +56,7 @@ export default function AppNavigator() {
         component={PlayList}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <FontAwesome5 name="compact-disc" size={size} color="white" />
+            <FontAwesome5 name="compact-disc" size={size} color={color} />
           ),
         }}
       />
@@ -50,7 +65,7 @@ export default function AppNavigator() {
         component={Player}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="library-music" size={size} color="white" />
+            <MaterialIcons name="library-music" size={size} color={color} />
           ),
         }}
       />

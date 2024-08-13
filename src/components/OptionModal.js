@@ -7,6 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  Alert
 } from 'react-native';
 
 export default function OptionModal({ visible, onClose, item, onAddToPlaylist ,onDelete}) {
@@ -17,32 +18,47 @@ export default function OptionModal({ visible, onClose, item, onAddToPlaylist ,o
       onClose();
     }
   };
-  const handleDelete = () =>{
-    if(onDelete){
-      onDelete();
-      onClose();
-    }
-  }
-
+  const handleDelete = () => {
+    Alert.alert('Confirm Delete','Are you sure you want to delete this item?',
+      [{
+        text:'Cancel',
+        style:'cancel'
+      },{
+        text:'Delete',
+        onPress:()=>{
+          if(onDelete){
+            onDelete();
+            onClose();
+          }
+        }
+      }],
+      { cancelable: true }
+    );
+     
+  };
+ 
   return (
     <>
       <StatusBar hidden />
       <TouchableWithoutFeedback onPress={onClose}>
         <Modal
-          animationType='slide'
+          animationType="slide"
           transparent
           visible={visible}
           onRequestClose={onClose}
         >
           <View style={styles.overlay}>
             <View style={styles.container}>
-              <Text style={styles.title}>{item ? item.filename : 'Title'}</Text>
+              <Text style={styles.title}>{item ? item.filename : "Title"}</Text>
 
               <View style={styles.options}>
-                <TouchableOpacity style={styles.button} onPress={handleAddToPlaylist}>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={handleAddToPlaylist}
+                >
                   <Text style={styles.buttonText}>Add to Playlist</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.button}  >
+                <TouchableOpacity style={styles.button}>
                   <Text style={styles.buttonText}>Play Later</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.button} onPress={handleDelete}>
