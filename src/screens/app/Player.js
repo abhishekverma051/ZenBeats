@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useContext, useEffect, useCallback, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   Dimensions,
   TouchableOpacity,
+  Image
 } from "react-native";
 import { Audio } from "expo-av";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -16,19 +17,25 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import PlayerOptionModal from "../../components/PlayerOptionModal";
 import Slider from "@react-native-community/slider";
+import Feather from "@expo/vector-icons/Feather";
+import { AudioContext } from "../../context/AudioProvider";
+ 
+const img = require('../../assets/images/album.png')
 const { width } = Dimensions.get("window");
 
 const Player = () => {
+  const { audioFiles, setAudioFiles } = useContext(AudioContext);
   const [sound, setSound] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackPosition, setPlaybackPosition] = useState(0);
   const [playbackDuration, setPlaybackDuration] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
+  const [repeat, setRepeat] = useState(false);
+  const [shuffle, setShuffle] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);  
   const navigation = useNavigation();
   const route = useRoute();
-  const { audioUri, filename } = route.params || {};
-
-  
+  const { audioUri, filename, audioId } = route.params || {};
 
   useEffect(() => {
     if (!audioUri) {
@@ -44,14 +51,6 @@ const Player = () => {
         );
         setSound(loadedSound);
         setPlaybackDuration(status.durationMillis);
-
-        loadedSound.setOnPlaybackStatusUpdate((status) => {
-          if (status.isLoaded) {
-            if (status.isPlaying) {
-              setPlaybackPosition(status.positionMillis);
-            }
-          }
-        });
 
         return () => {
           if (loadedSound) {
@@ -85,6 +84,95 @@ const Player = () => {
       }
     };
   }, [isPlaying, sound]);
+
+  useEffect(() => {
+    const handlePlaybackStatusUpdate = (status) => {
+      if (status.isLoaded) {
+        if (status.didJustFinish) {
+          if (repeat) {
+            sound.setPositionAsync(0);
+            sound.playAsync();
+          } else {
+            setIsPlaying(false);
+            if (shuffle) {
+              handlePlayNext();  
+            }
+          }
+        }
+        if (status.isPlaying) {
+          setPlaybackPosition(status.positionMillis);
+        }
+      }
+    };
+
+    if (sound) {
+      sound.setOnPlaybackStatusUpdate(handlePlaybackStatusUpdate);
+    }
+
+    return () => {
+      if (sound) {
+        sound.setOnPlaybackStatusUpdate(null);
+      }
+    };
+  }, [repeat, sound, shuffle]);
+
+  
+  
+  const shuffleArray = (array) =>{
+    let shuffled = array.slice();
+    for(let i=shuffled.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];
+    }
+    return shuffled;
+  };
+
+
+  const handlePlayPrevious = useCallback(() => {
+    if (currentIndex > 0) {
+      const previousTrack = audioFiles[currentIndex - 1];
+      navigation.navigate("Player", {
+        audioUri: previousTrack.uri,
+        filename: previousTrack.filename,
+        audioId: previousTrack.id,
+      });
+      setCurrentIndex(currentIndex - 1);
+    } else {
+      console.log("No previous track available");
+    }
+  }, [currentIndex, audioFiles, navigation]);
+
+  const handlePlayNext = useCallback(() => {
+    if (shuffle) {
+      const shuffledFiles = shuffleArray(audioFiles);
+      const nextIndex = shuffledFiles.findIndex((file) => file.id === audioId);
+      if (nextIndex > -1) {
+        const nextTrack = shuffledFiles[nextIndex + 1] || shuffledFiles[0];
+        navigation.navigate("Player", {
+          audioUri: nextTrack.uri,
+          filename: nextTrack.filename,
+          audioId: nextTrack.id,
+        });
+        setCurrentIndex(nextIndex);
+      }
+    } else {
+      if (currentIndex < audioFiles.length - 1) {
+        const nextTrack = audioFiles[currentIndex + 1];
+        navigation.navigate("Player", {
+          audioUri: nextTrack.uri,
+          filename: nextTrack.filename,
+          audioId: nextTrack.id,
+        });
+        setCurrentIndex(currentIndex + 1);
+      } else {
+        console.log("No next track available");
+      }
+    }
+  }, [currentIndex, audioFiles, navigation, shuffle, audioId]);
+
+  const handleShuffle = useCallback(() => {
+    setShuffle((prev) => !prev);
+  }, []);
 
   const handlePlayPause = useCallback(() => {
     setIsPlaying((prev) => !prev);
@@ -121,7 +209,8 @@ const Player = () => {
         <Entypo name="dots-three-vertical" size={24} color="white" />
       </TouchableOpacity>
       <View style={styles.content}>
-        <FontAwesome6 name="music" size={200} color="white" />
+        <Image source={img} style = {styles.img}/>
+        {/* <FontAwesome6 name="music" size={200} color="white" /> */}
         <View style={styles.titleContainer}>
           <Text style={styles.title}>{filename}</Text>
         </View>
@@ -140,7 +229,20 @@ const Player = () => {
             <Text style={styles.time}>{formatTime(playbackDuration)}</Text>
           </View>
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.playPauseButton}>
+            <TouchableOpacity
+              onPress={() => setRepeat((prev) => !prev)}
+              style={styles.playPauseButton}
+            >
+              <MaterialIcons
+                name={repeat ? "repeat-one" : "repeat"}
+                size={30}
+                color="white"
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.playPauseButton}
+              onPress={handlePlayPrevious}
+            >
               <MaterialIcons name="skip-previous" size={30} color="white" />
             </TouchableOpacity>
             <TouchableOpacity
@@ -149,12 +251,25 @@ const Player = () => {
             >
               <Ionicons
                 name={isPlaying ? "pause" : "play"}
-                size={30}
+                size={39}
                 color="#fff"
               />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.playPauseButton}>
+            <TouchableOpacity
+              style={styles.playPauseButton}
+              onPress={handlePlayNext}
+            >
               <MaterialIcons name="skip-next" size={30} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.playPauseButton}
+              onPress={handleShuffle}
+            >
+              <MaterialIcons
+                name={shuffle ? "shuffle-on" : "shuffle"}
+                size={24}
+                color="white"
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -193,7 +308,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   titleContainer: {
-    marginVertical: 20,  
+    marginVertical: 20,
     alignItems: "center",
   },
   title: {
@@ -211,7 +326,6 @@ const styles = StyleSheet.create({
   slider: {
     width: width - 40,
     height: 40,
-     
   },
   time: {
     color: "#fff",
@@ -227,7 +341,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     width: "100%",
     paddingHorizontal: 20,
-  },
+  },img:{
+    width:300,
+    height:310
+  }
 });
 
 export default Player;

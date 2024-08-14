@@ -5,6 +5,7 @@ import AudioList from "../screens/app/AudioList";
 import PlayList from "../screens/app/PlayList";
 import Player from "../screens/app/Player";
 import SettingScreen from "../screens/auth/SettingScreen";
+import AboutScreen from "../screens/auth/AboutScreen";
 import { MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 import color from "../miscs/color";
 
@@ -18,8 +19,9 @@ function DrawerNavigator() {
         headerShown: false,
       }}
     >
-      <Drawer.Screen name="AudioList" component={AudioList} />
-      <Drawer.Screen name="SettingScreen" component={SettingScreen} />
+      <Drawer.Screen name="Audio List" component={AudioList} />
+      <Drawer.Screen name="Setting Screen" component={SettingScreen} />
+      <Drawer.Screen name = "About Screen" component={AboutScreen}/>
     </Drawer.Navigator>
   );
 }

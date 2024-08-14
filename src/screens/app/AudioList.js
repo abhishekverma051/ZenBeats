@@ -47,6 +47,7 @@ const AudioList = () => {
     navigation.navigate("Player", {
       audioUri: item.uri,
       filename: item.filename,
+      audioId : item.id,
     });
   };
 

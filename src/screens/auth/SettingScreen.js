@@ -10,11 +10,13 @@ import React, { useState, useEffect } from "react";
 import Slider from "@react-native-community/slider";
 import { LinearGradient } from "expo-linear-gradient";
 import color from "../../miscs/color";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { useNavigation } from "@react-navigation/native";
 export default function SettingScreen() {
   const [darkMode, setDarkMode] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [volume, setVolume] = useState(50);
-
+  const navigation = useNavigation()
   const saveSettings = () => {
     alert("Settings saved successfully!");
   };
@@ -28,6 +30,13 @@ export default function SettingScreen() {
 
   return (
     <LinearGradient colors={color.LG} style={styles.lg}>
+      <Ionicons
+        name="arrow-back-sharp"
+        size={30}
+        color="white"
+        onPress={() => navigation.goBack()}
+        style = {styles.button}
+      />
       <SafeAreaView style={styles.container}>
         <Text style={styles.header}>Settings</Text>
 
@@ -73,6 +82,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 12,
     marginRight: 12,
+    marginTop:35
   },
   lg: {
     flex: 1,
@@ -100,4 +110,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
   },
+  button:{
+    marginTop:14,
+    marginLeft:12
+  }
 });

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   View,
   Text,
@@ -7,47 +7,57 @@ import {
   StyleSheet,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  Alert
-} from 'react-native';
+  Alert,
+} from "react-native";
 
-export default function OptionModal({ visible, onClose, item, onAddToPlaylist ,onDelete}) {
+export default function OptionModal({
+  visible,
+  onClose,
+  item,
+  onAddToPlaylist,
+  onDelete,
+}) {
   if (!visible) return null;
+
   const handleAddToPlaylist = () => {
     if (onAddToPlaylist) {
       onAddToPlaylist();
       onClose();
     }
   };
+
   const handleDelete = () => {
-    Alert.alert('Confirm Delete','Are you sure you want to delete this item?',
-      [{
-        text:'Cancel',
-        style:'cancel'
-      },{
-        text:'Delete',
-        onPress:()=>{
-          if(onDelete){
-            onDelete();
-            onClose();
-          }
-        }
-      }],
-      { cancelable: true }
+    Alert.alert(
+      "Confirm Delete",
+      "Are you sure you want to delete this item?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: () => {
+            if (onDelete) {
+              onDelete();
+              onClose();
+            }
+          },
+        },
+      ]
     );
-     
   };
- 
+
   return (
-    <>
-      <StatusBar hidden />
+    <Modal
+      animationType="slide"
+      transparent
+      visible={visible}
+      onRequestClose={onClose}
+    >
       <TouchableWithoutFeedback onPress={onClose}>
-        <Modal
-          animationType="slide"
-          transparent
-          visible={visible}
-          onRequestClose={onClose}
-        >
-          <View style={styles.overlay}>
+        <View style={styles.overlay}>
+          <TouchableWithoutFeedback>
             <View style={styles.container}>
               <Text style={styles.title}>{item ? item.filename : "Title"}</Text>
 
@@ -66,25 +76,25 @@ export default function OptionModal({ visible, onClose, item, onAddToPlaylist ,o
                 </TouchableOpacity>
               </View>
             </View>
-          </View>
-        </Modal>
+          </TouchableWithoutFeedback>
+        </View>
       </TouchableWithoutFeedback>
-    </>
+    </Modal>
   );
 }
 
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.4)",
   },
   container: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderTopRightRadius: 18,
     borderTopLeftRadius: 18,
     padding: 16,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
@@ -92,19 +102,19 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
-    textAlign: 'center',
+    textAlign: "center",
   },
   options: {
     marginTop: 10,
   },
   button: {
-    backgroundColor: '#FAFCF8',
+    backgroundColor: "#FAFCF8",
     padding: 15,
     borderRadius: 7,
     marginBottom: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
@@ -112,7 +122,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 16,
-    textAlign: 'center',
-    color: '#333',
+    textAlign: "center",
+    color: "#333",
   },
 });
