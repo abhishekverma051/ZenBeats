@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState } from "react";
+ import React, { createContext, useEffect, useState } from "react";
 import { Alert } from "react-native";
 import * as MediaLibrary from "expo-media-library";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -10,7 +10,38 @@ const STORAGE_KEY_PLAYLISTS = "@playlists";
 const AppProvider = ({ children }) => {
   const [audioFiles, setAudioFiles] = useState([]);
   const [playlists, setPlaylists] = useState([]);
-  const [permissionError, setPermissionError] = useState(false);
+   const [permissionError, setPermissionError] = useState(false);
+
+   const getPermission = async () => {
+    try {
+      const permission = await MediaLibrary.getPermissionsAsync();
+      if (permission.granted) {
+        loadAudioFiles();
+      } else if (permission.canAskAgain) {
+        const { status } = await MediaLibrary.requestPermissionsAsync();
+        if (status === "denied") {
+          permissionAlert();
+        } else if (status === "granted") {
+          loadAudioFiles();
+        }
+      } else {
+        setPermissionError(true);
+      }
+    } catch (error) {
+      console.error("Error requesting permission: ", error);
+    }
+  };
+
+  const loadAudioFiles = async () => {
+    try {
+      const media = await MediaLibrary.getAssetsAsync({
+        mediaType: "audio",
+      });
+      setAudioFiles(media.assets);
+    } catch (error) {
+      console.error("Error getting audio files: ", error);
+    }
+  };
 
   const permissionAlert = () => {
     Alert.alert(
@@ -28,37 +59,7 @@ const AppProvider = ({ children }) => {
     );
   };
 
-  const getAudioFiles = async () => {
-    try {
-      const media = await MediaLibrary.getAssetsAsync({
-        mediaType: "audio",
-      });
-      setAudioFiles(media.assets);
-    } catch (error) {
-      console.error("Error getting audio files: ", error);
-    }
-  };
-
-  const getPermission = async () => {
-    try {
-      const permission = await MediaLibrary.getPermissionsAsync();
-      if (permission.granted) {
-        getAudioFiles();
-      } else if (permission.canAskAgain) {
-        const { status } = await MediaLibrary.requestPermissionsAsync();
-        if (status === "denied") {
-          permissionAlert();
-        } else if (status === "granted") {
-          getAudioFiles();
-        }
-      } else {
-        setPermissionError(true);
-      }
-    } catch (error) {
-      console.error("Error requesting permission: ", error);
-    }
-  };
-
+   
   const loadPlaylists = async () => {
     try {
       const playlistsString = await AsyncStorage.getItem(STORAGE_KEY_PLAYLISTS);
@@ -70,6 +71,7 @@ const AppProvider = ({ children }) => {
     }
   };
 
+  
   const savePlaylists = async (playlists) => {
     try {
       await AsyncStorage.setItem(
@@ -81,22 +83,31 @@ const AppProvider = ({ children }) => {
     }
   };
 
+   
   const addPlaylist = async (name) => {
+    if (!name) {
+      Alert.alert("Error", "Playlist name cannot be empty.");
+      return;
+    }
     const newPlaylist = { id: new Date().toISOString(), name, songs: [] };
     const updatedPlaylists = [...playlists, newPlaylist];
     setPlaylists(updatedPlaylists);
     await savePlaylists(updatedPlaylists);
   };
-
-  const addToPlaylist = async (playlist, song) => {
+ 
+  const addToPlaylist = async (playlistId, song) => {
     const updatedPlaylists = playlists.map((pl) =>
-      pl.id === playlist.id ? { ...pl, songs: [...pl.songs, song] } : pl
+      pl.id === playlistId ? { ...pl, songs: [...pl.songs, song] } : pl
     );
     setPlaylists(updatedPlaylists);
     await savePlaylists(updatedPlaylists);
   };
 
-  const editPlaylist = async (id, newName) => {
+   const editPlaylist = async (id, newName) => {
+    if (!newName) {
+      Alert.alert("Error", "Playlist name cannot be empty.");
+      return;
+    }
     const updatedPlaylists = playlists.map((pl) =>
       pl.id === id ? { ...pl, name: newName } : pl
     );
@@ -104,11 +115,13 @@ const AppProvider = ({ children }) => {
     await savePlaylists(updatedPlaylists);
   };
 
-  const deletePlaylist = async (id) => {
+   const deletePlaylist = async (id) => {
     const updatedPlaylists = playlists.filter((pl) => pl.id !== id);
     setPlaylists(updatedPlaylists);
     await savePlaylists(updatedPlaylists);
   };
+
+  
 
   useEffect(() => {
     getPermission();
@@ -125,7 +138,6 @@ const AppProvider = ({ children }) => {
         editPlaylist,
         deletePlaylist,
         setAudioFiles,
-        setPlaylists
       }}
     >
       {children}

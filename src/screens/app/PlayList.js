@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+ import React, { useContext, useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -29,8 +29,8 @@ const PlaylistScreen = () => {
   const [newPlaylistName, setNewPlaylistName] = useState("");
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const [selectedSong, setSelectedSong] = useState(null);
-  const [editingPlaylist, setEditingPlaylist] = useState(null); // for editing a playlist
-  const [editName, setEditName] = useState(""); // new name for editing
+  const [editingPlaylist, setEditingPlaylist] = useState(null); 
+  const [editName, setEditName] = useState("");  
   const navigation = useNavigation();
   const route = useRoute();
 
@@ -40,36 +40,11 @@ const PlaylistScreen = () => {
     }
   }, [route.params]);
 
-  useEffect(() => {
-    const loadPlaylists = async () => {
-      try {
-        const playlistsString = await AsyncStorage.getItem("@playlists");
-        if (playlistsString) {
-          const storedPlaylists = JSON.parse(playlistsString);
-          // You need to ensure the playlists are set here correctly.
-        }
-      } catch (error) {
-        console.error("Error loading playlists: ", error);
-      }
-    };
-
-    loadPlaylists();
-  }, []);
-
-  const savePlaylists = async (playlists) => {
-    try {
-      await AsyncStorage.setItem("@playlists", JSON.stringify(playlists));
-    } catch (error) {
-      console.error("Error saving playlists: ", error);
-    }
-  };
-
   const handleCreatePlaylist = async () => {
     if (newPlaylistName.trim()) {
       await addPlaylist(newPlaylistName);
       setNewPlaylistName("");
       Alert.alert("Success", `Playlist '${newPlaylistName}' created.`);
-      await savePlaylists(playlists); // Save updated playlists to AsyncStorage
     } else {
       Alert.alert("Error", "Please enter a name for the new playlist");
     }
@@ -81,7 +56,6 @@ const PlaylistScreen = () => {
       setEditingPlaylist(null);
       setEditName("");
       Alert.alert("Success", "Playlist name updated.");
-      await savePlaylists(playlists); // Save updated playlists to AsyncStorage
     } else {
       Alert.alert("Error", "Please enter a new name for the playlist.");
     }
@@ -97,7 +71,6 @@ const PlaylistScreen = () => {
           text: "Delete",
           onPress: async () => {
             await deletePlaylist(playlistId);
-            await savePlaylists(playlists); // Save updated playlists to AsyncStorage
           },
         },
       ]
@@ -106,7 +79,7 @@ const PlaylistScreen = () => {
 
   const handleAddToPlaylist = async () => {
     if (selectedPlaylist && selectedSong) {
-      await addToPlaylist(selectedPlaylist, selectedSong);
+      await addToPlaylist(selectedPlaylist.id, selectedSong);
       setSelectedPlaylist(null);
       Alert.alert("Success", "Song added to the playlist.");
       navigation.goBack();
@@ -164,7 +137,7 @@ const PlaylistScreen = () => {
               <Text style={styles.buttonText}>Save Changes</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.button1, { backgroundColor: "#FF0000" }]} // red button for cancel
+              style={[styles.button1, { backgroundColor: "#FF0000" }]}  
               onPress={() => setEditingPlaylist(null)}
             >
               <Text style={styles.buttonText}>Cancel</Text>

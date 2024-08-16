@@ -5,7 +5,7 @@ import {
   StyleSheet,
   Dimensions,
   TouchableOpacity,
-  Image
+  Image,
 } from "react-native";
 import { Audio } from "expo-av";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -19,8 +19,8 @@ import PlayerOptionModal from "../../components/PlayerOptionModal";
 import Slider from "@react-native-community/slider";
 import Feather from "@expo/vector-icons/Feather";
 import { AudioContext } from "../../context/AudioProvider";
- 
-const img = require('../../assets/images/album.png')
+
+const img = require("../../assets/images/album.png");
 const { width } = Dimensions.get("window");
 
 const Player = () => {
@@ -32,7 +32,8 @@ const Player = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [repeat, setRepeat] = useState(false);
   const [shuffle, setShuffle] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);  
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [favourite, setFavourite] = useState(false);
   const navigation = useNavigation();
   const route = useRoute();
   const { audioUri, filename, audioId } = route.params || {};
@@ -95,7 +96,7 @@ const Player = () => {
           } else {
             setIsPlaying(false);
             if (shuffle) {
-              handlePlayNext();  
+              handlePlayNext();
             }
           }
         }
@@ -116,17 +117,14 @@ const Player = () => {
     };
   }, [repeat, sound, shuffle]);
 
-  
-  
-  const shuffleArray = (array) =>{
+  const shuffleArray = (array) => {
     let shuffled = array.slice();
-    for(let i=shuffled.length-1;i>0;i--){
-      const j = Math.floor(Math.random()*(i+1));
-      [shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     return shuffled;
   };
-
 
   const handlePlayPrevious = useCallback(() => {
     if (currentIndex > 0) {
@@ -185,6 +183,11 @@ const Player = () => {
     }
   };
 
+  const handleFavoritePress = () => {
+    // Add logic to toggle favorite status or navigate to FavoriteSongsScreen
+    navigation.navigate("FavoriteSongs");
+  };
+
   const formatTime = (milliseconds) => {
     const minutes = Math.floor(milliseconds / 60000);
     const seconds = Math.floor((milliseconds % 60000) / 1000);
@@ -209,10 +212,17 @@ const Player = () => {
         <Entypo name="dots-three-vertical" size={24} color="white" />
       </TouchableOpacity>
       <View style={styles.content}>
-        <Image source={img} style = {styles.img}/>
+        <Image source={img} style={styles.img} />
         {/* <FontAwesome6 name="music" size={200} color="white" /> */}
         <View style={styles.titleContainer}>
           <Text style={styles.title}>{filename}</Text>
+          <TouchableOpacity onPress={handleFavoritePress}>
+            <MaterialIcons
+              name={favourite ? "favorite-border" : "favorite"}
+              size={24}
+              color="white"
+            />
+          </TouchableOpacity>
         </View>
         <View style={styles.controls}>
           <Slider
@@ -309,12 +319,18 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     marginVertical: 20,
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+    paddingHorizontal: 20,
   },
   title: {
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
+    flex: 1,
+    marginRight: 10,
   },
   controls: {
     width: "100%",
@@ -341,10 +357,11 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     width: "100%",
     paddingHorizontal: 20,
-  },img:{
-    width:300,
-    height:310
-  }
+  },
+  img: {
+    width: 300,
+    height: 310,
+  },
 });
 
 export default Player;

@@ -74,6 +74,7 @@ export default function OptionModal({
                 <TouchableOpacity style={styles.button} onPress={handleDelete}>
                   <Text style={styles.buttonText}>Delete</Text>
                 </TouchableOpacity>
+                
               </View>
             </View>
           </TouchableWithoutFeedback>
