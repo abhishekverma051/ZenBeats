@@ -1,130 +1,211 @@
-import { StatusBar } from "expo-status-bar";
-import React from "react";
+import React, { useState } from "react";
 import {
   Modal,
-  Text,
   View,
-  TouchableWithoutFeedback,
+  Text,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
+  TextInput,
+  Alert,
 } from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Entypo from "@expo/vector-icons/Entypo";
-const { width } = Dimensions.get("window");
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import AntDesign from "@expo/vector-icons/AntDesign";
 
-export default function PlayerOptionModal({ visible, onClose }) {
+const PlayerOptionModal = ({
+  visible,
+  onClose,
+  onSleepTimerPress,
+  onRingtoneEditorPress,
+  onBlockSongPress,
+  onSharePress,
+  onRemoveFromQueuePress,
+}) => {
+  const [timerInput, setTimerInput] = useState("");
+  const [sleepTimerModalVisible, setSleepTimerModalVisible] = useState(false);
+
+  const handleSleepTimerButtonPress = () => {
+    setSleepTimerModalVisible(true);
+  };
+
+  const handleSetSleepTimer = () => {
+    const duration = parseInt(timerInput, 10);
+    if (isNaN(duration) || duration <= 0) {
+      Alert.alert(
+        "Invalid Duration",
+        "Please enter a valid duration in minutes."
+      );
+      return;
+    }
+    onSleepTimerPress(duration);
+    setTimerInput("");
+    setSleepTimerModalVisible(false);
+  };
+
   return (
-    <>
-      <StatusBar hidden />
-      <Modal
-        animationType="slide"
-        transparent
-        visible={visible}
-        onRequestClose={onClose}
-      >
-        <TouchableWithoutFeedback onPress={onClose}>
-          <View style={styles.overlay}>
-            <TouchableWithoutFeedback>
-              <View style={styles.modalContainer}>
-                <Text style={styles.modalTitle}>Player Options</Text>
-                <View style={styles.buttons}>
-                  <TouchableOpacity style={styles.button}>
-                    <MaterialCommunityIcons
-                      style={styles.icon}
-                      name="bell-sleep"
-                      size={24}
-                      color="black"
-                    />
-                    <Text style={styles.buttonText}>Sleep Timer</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.button}>
-                    <MaterialCommunityIcons
-                      name="music-clef-treble"
-                      size={24}
-                      color="orange"
-                      style={styles.icon}
-                    />
-                    <Text style={styles.buttonText}>Ringtone Editor</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.button}>
-                    <Entypo
-                      name="share"
-                      size={24}
-                      color="blue"
-                      style={styles.icon}
-                    />
-                    <Text style={styles.buttonText}>Share</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.button}>
-                    <FontAwesome
-                      name="remove"
-                      size={24}
-                      color="red"
-                      style={styles.icon}
-                    />
-                    <Text style={styles.buttonText}>Remove from Queue</Text>
-                  </TouchableOpacity>
-                </View>
+    <Modal visible={visible} transparent={true} animationType="slide">
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+            <Ionicons name="close" size={24} color="black" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.optionButton}
+            onPress={handleSleepTimerButtonPress}
+          >
+            <MaterialCommunityIcons
+              name="power-sleep"
+              size={24}
+              color="black"
+            />
+            <Text style={styles.optionText}>Sleep Timer</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.optionButton}
+            onPress={onRingtoneEditorPress}
+          >
+            <AntDesign name="edit" size={24} color="black" />
+            <Text style={styles.optionText}>Edit Ringtone</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.optionButton}
+            onPress={onBlockSongPress}
+          >
+            <MaterialIcons name="block" size={24} color="black" />
+            <Text style={styles.optionText}>Block Song</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.optionButton} onPress={onSharePress}>
+            <Entypo name="share" size={24} color="blue" />
+            <Text style={styles.optionText}>Share</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.optionButton}
+            onPress={onRemoveFromQueuePress}
+          >
+            <FontAwesome name="remove" size={24} color="red" />
+            <Text style={styles.optionText}>Remove from Queue</Text>
+          </TouchableOpacity>
+
+          
+          <Modal
+            visible={sleepTimerModalVisible}
+            transparent={true}
+            animationType="slide"
+          >
+            <View style={styles.sleepTimerModalContainer}>
+              <View style={styles.sleepTimerModalContent}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Set Sleep Timer (minutes)"
+                  keyboardType="numeric"
+                  value={timerInput}
+                  onChangeText={setTimerInput}
+                />
+                <TouchableOpacity
+                  style={styles.setButton}
+                  onPress={handleSetSleepTimer}
+                >
+                  <Text style={styles.setButtonText}>Set Timer</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={() => setSleepTimerModalVisible(false)}
+                >
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
               </View>
-            </TouchableWithoutFeedback>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
-    </>
+            </View>
+          </Modal>
+        </View>
+      </View>
+    </Modal>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  overlay: {
+  modalContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
-  modalContainer: {
-    width: width - 40,
-    backgroundColor: "#fff",
-    borderRadius: 10,
+  modalContent: {
+    backgroundColor: "white",
     padding: 20,
-    elevation: 5,
-     
+    borderRadius: 10,
+    width: "80%",
   },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 15,
-    textAlign: "center",
+  closeButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
   },
-  buttons: {
-    marginTop: 10,
-  },
-  button: {
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    paddingVertical: 12,
-    marginVertical: 5,
-    justifyContent: "center",
+  optionButton: {
+    paddingVertical: 15,
+    flexDirection: "row",
     alignItems: "center",
+    gap: 25,
+    marginBottom: 19,
+    borderRadius: 12,
+    marginBottom: 2,
+    backgroundColor: "white",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
-    elevation: 3,
-    flexDirection: "row",
-    gap: 100,
-    marginHorizontal: 10,
+    elevation: 5,
+    padding: 10,
+    marginTop: 15,
   },
-  buttonText: {
-    color: "#000",
+  optionText: {
+    fontSize: 18,
+  },
+  sleepTimerModalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  sleepTimerModalContent: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+    width: "80%",
+    alignItems: "center",
+  },
+  input: {
+    borderBottomWidth: 1,
+    borderColor: "gray",
+    width: "80%",
+    padding: 10,
+    marginBottom: 10,
     fontSize: 16,
-    fontWeight: "600",
   },
-  icon: {
-    position: "absolute",
-    top: 10,
-    left: 10,
-    zIndex: 1,
+  setButton: {
+    backgroundColor: "#1DB954",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  setButtonText: {
+    color: "white",
+    fontSize: 16,
+  },
+  cancelButton: {
+    marginTop: 10,
+  },
+  cancelButtonText: {
+    color: "red",
+    fontSize: 16,
   },
 });
+
+export default PlayerOptionModal;

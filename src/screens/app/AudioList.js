@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Dimensions,
   TouchableWithoutFeedback,
+  Alert,
 } from "react-native";
 import { AudioContext } from "../../context/AudioProvider";
 import Entypo from "@expo/vector-icons/Entypo";
@@ -16,13 +17,18 @@ import SearchBar from "../../components/SearchBar";
 import color from "../../miscs/color";
 import { useNavigation } from "@react-navigation/native";
 import OptionModal from "../../components/OptionModal";
+
+
+
 const { width } = Dimensions.get("window");
 
 const AudioList = () => {
-  const { audioFiles, setAudioFiles } = useContext(AudioContext);  
+  const { audioFiles, setAudioFiles, addToQueue } = useContext(AudioContext);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [open, setOpen] = React.useState(false);
+
   const navigation = useNavigation();
 
   const defaultImage =
@@ -47,7 +53,7 @@ const AudioList = () => {
     navigation.navigate("Player", {
       audioUri: item.uri,
       filename: item.filename,
-      audioId : item.id,
+      audioId: item.id,
     });
   };
 
@@ -64,6 +70,14 @@ const AudioList = () => {
         prevFiles.filter((file) => file.id !== selectedItem.id)
       );
       setSelectedItem(null);
+    }
+  };
+
+  const handleAddToQueue = async () => {
+    if (selectedItem) {
+      await addToQueue(selectedItem);
+      Alert.alert("Success", "Song added to queue!");
+      setModalVisible(false);
     }
   };
 
@@ -112,67 +126,97 @@ const AudioList = () => {
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
       />
+
       <OptionModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         item={selectedItem}
         onAddToPlaylist={handleAddToPlaylist}
         onDelete={handleDelete}
+        onAddToQueue={handleAddToQueue}
       />
+
+      <TouchableOpacity
+        onPress={() => navigation.navigate("QueueScreen")}
+        style={styles.queueButton}
+      >
+        <Entypo name="folder-music" size={28} color="#FFD700" />
+         
+      </TouchableOpacity>
+
+      
     </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
-  linearGradient: {
-    flex: 1,
-  },
   container: {
-    flex: 1,
+    marginBottom: 10,
   },
   item: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#C7DBE6",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    marginBottom: 5,
-    backgroundColor: "#C7DBE6",
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 10,
+    marginHorizontal: 10,
   },
   image: {
     width: 50,
     height: 50,
-    marginRight: 10,
     borderRadius: 5,
-    borderWidth: 2,
-  },
-  filename: {
-    fontWeight: "bold",
   },
   detail: {
     flex: 1,
-    paddingRight: 10,
+    marginLeft: 10,
+  },
+  filename: {
+    fontSize: 16,
+    fontWeight: "bold",
   },
   duration: {
-    marginTop: 12,
-    fontSize: 12,
+    fontSize: 14,
+    color: "#777",
   },
   threeDots: {
-    marginRight: 12,
+    padding: 10,
   },
   topHead: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
     padding: 15,
+    marginTop:25
   },
   searchContainer: {
     flex: 1,
-    marginLeft: 15,
+  },
+  queueButton: {
+    position: "absolute",
+    bottom: 30,
+    right: 15,
+    backgroundColor: "grey",
+    padding: 10,
+    borderRadius: 50,
+    height:80,
+    width:80,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent:"center"
+
+  },
+  queueButtonText: {
+    marginLeft: 5,
+    fontSize: 16,
+    color:"white"
+  },
+  linearGradient: {
+    flex: 1,
   },
 });
 

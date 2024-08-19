@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useCallback, useState } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useCallback,
+  useState,
+  useRef,
+} from "react";
 import {
   View,
   Text,
@@ -6,6 +12,8 @@ import {
   Dimensions,
   TouchableOpacity,
   Image,
+  Share,
+  Alert,
 } from "react-native";
 import { Audio } from "expo-av";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -34,9 +42,15 @@ const Player = () => {
   const [shuffle, setShuffle] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [favourite, setFavourite] = useState(false);
+  const [sleepTimerDuration, setSleepTimerDuration] = useState(15);
+  const [sleepTimerVisible, setSleepTimerVisible] = useState(false);
+    const { queue, removeFromQueue } = useContext(AudioContext);
+
+
   const navigation = useNavigation();
   const route = useRoute();
   const { audioUri, filename, audioId } = route.params || {};
+  const sleepTimerRef = useRef(null);
 
   useEffect(() => {
     if (!audioUri) {
@@ -183,8 +197,61 @@ const Player = () => {
     }
   };
 
+  const handleSleepTimerPress = () => {
+    setModalVisible(false);
+    setSleepTimerVisible(true);
+  };
+
+  const handleSleepTimer = (duration) => {
+    setModalVisible(false);
+    setSleepTimerDuration(duration);
+    if (sleepTimerRef.current) {
+      clearTimeout(sleepTimerRef.current);
+    }
+    sleepTimerRef.current = setTimeout(() => {
+      if (sound) {
+        sound.pauseAsync();
+        setIsPlaying(false);
+      }
+    }, duration * 60 * 1000);
+  };
+
+  const handleRingtoneEditorPress = () => {
+    console.log("edit");
+    setModalVisible(false);
+  };
+
+  const handleBlockSongPress = () => {
+    console.log("Block Song Pressed");
+    setModalVisible(false);
+
+    setAudioFiles(audioFiles.filter((file) => file.id !== audioId));
+    handlePlayNext();
+  };
+
+  const handleSharePress = async () => {
+    console.log("Share Pressed");
+    setModalVisible(false);
+
+    try {
+      await Share.share({
+        message: `Check out this song: ${filename}`,
+        url: audioUri,
+        title: filename,
+      });
+    } catch (error) {
+      console.error("Error sharing the song: ", error);
+    }
+  };
+
+  const handleRemoveFromQueuePress = () => {
+    console.log("Remove from Queue Pressed");
+    setModalVisible(false);
+    setAudioFiles(audioFiles.filter((file, index) => index !== currentIndex));
+    handlePlayNext();
+  };
+
   const handleFavoritePress = () => {
-    // Add logic to toggle favorite status or navigate to FavoriteSongsScreen
     navigation.navigate("FavoriteSongs");
   };
 
@@ -194,31 +261,34 @@ const Player = () => {
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
 
+  const handleRemoveFromQueue = (item) => {
+    removeFromQueue(item);
+  };
+
   return (
     <LinearGradient colors={color.LG} style={styles.container}>
-      <TouchableOpacity
-        style={styles.iconBack}
-        onPress={() => navigation.goBack()}
-      >
-        <Ionicons name="arrow-back-sharp" size={34} color="white" />
-      </TouchableOpacity>
-      <Text style={{ color: "white", fontSize: 24, fontWeight: "bold" }}>
-        Now Playing
-      </Text>
-      <TouchableOpacity
-        style={styles.iconDots}
-        onPress={() => setModalVisible(true)}
-      >
-        <Entypo name="dots-three-vertical" size={24} color="white" />
-      </TouchableOpacity>
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.iconBack}
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="arrow-back-sharp" size={34} color="white" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Now Playing</Text>
+        <TouchableOpacity
+          style={styles.iconDots}
+          onPress={() => setModalVisible(true)}
+        >
+          <Entypo name="dots-three-vertical" size={24} color="white" />
+        </TouchableOpacity>
+      </View>
       <View style={styles.content}>
         <Image source={img} style={styles.img} />
-        {/* <FontAwesome6 name="music" size={200} color="white" /> */}
         <View style={styles.titleContainer}>
           <Text style={styles.title}>{filename}</Text>
           <TouchableOpacity onPress={handleFavoritePress}>
             <MaterialIcons
-              name={favourite ? "favorite-border" : "favorite"}
+              name={favourite ? "favorite" : "favorite-border"}
               size={24}
               color="white"
             />
@@ -287,6 +357,11 @@ const Player = () => {
       <PlayerOptionModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
+        onSleepTimerPress={handleSleepTimerPress}
+        onRingtoneEditorPress={handleRingtoneEditorPress}
+        onBlockSongPress={handleBlockSongPress}
+        onSharePress={handleSharePress}
+        onRemoveFromQueuePress={handleRemoveFromQueuePress}
       />
     </LinearGradient>
   );
@@ -299,17 +374,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
   },
+  header: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,  
+    marginTop:25
+  },
   iconBack: {
-    position: "absolute",
-    top: 10,
-    left: 10,
-    zIndex: 1,
+    marginLeft: 10,
+  },
+  headerTitle: {
+    color: "white",
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+    flex: 1,
   },
   iconDots: {
-    position: "absolute",
-    top: 10,
-    right: 10,
-    zIndex: 1,
+    marginRight: 10,
   },
   content: {
     flex: 1,

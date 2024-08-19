@@ -7,6 +7,7 @@ import PlaylistScreen from "../screens/app/PlayList";
 import PlaylistDetailScreen from "../screens/app/PlaylistDetailScreen";
 import FavoriteSongsScreen from "../screens/app/FavoriteSongs"
 import DrawerNavigation from "./DrawerNavigation";
+import QueueScreen from "../screens/app/QueueScreen";
  const Stack = createStackNavigator();
 
 export default function RootNavigator() {
@@ -19,12 +20,19 @@ export default function RootNavigator() {
     >
       <Stack.Screen name="Splash" component={SplashScreen} />
       <Stack.Screen name="Main" component={AppNavigator} />
-       <Stack.Screen name="Player" component={Player}  options={{ headerShown: false }}/>
-
+      
+      <Stack.Screen name="QueueScreen" component={QueueScreen} />
+      <Stack.Screen
+        name="Player"
+        component={Player}
+        
+      />
       <Stack.Screen name="PlaylistScreen" component={PlaylistScreen} />
-      <Stack.Screen name="PlaylistDetailScreen" component={PlaylistDetailScreen} />
+      <Stack.Screen
+        name="PlaylistDetailScreen"
+        component={PlaylistDetailScreen}
+      />
       <Stack.Screen name="FavoriteSongs" component={FavoriteSongsScreen} />
-
     </Stack.Navigator>
   );
 }

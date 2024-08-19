@@ -3,7 +3,6 @@ import {
   View,
   Text,
   Modal,
-  StatusBar,
   StyleSheet,
   TouchableOpacity,
   TouchableWithoutFeedback,
@@ -16,6 +15,7 @@ export default function OptionModal({
   item,
   onAddToPlaylist,
   onDelete,
+  onAddToQueue,
 }) {
   if (!visible) return null;
 
@@ -48,6 +48,13 @@ export default function OptionModal({
     );
   };
 
+  const handleAddToQueue = () => {
+    if (onAddToQueue) {
+      onAddToQueue();
+      onClose();
+    }
+  };
+
   return (
     <Modal
       animationType="slide"
@@ -68,13 +75,15 @@ export default function OptionModal({
                 >
                   <Text style={styles.buttonText}>Add to Playlist</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.button}>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={handleAddToQueue}
+                >
                   <Text style={styles.buttonText}>Play Later</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.button} onPress={handleDelete}>
                   <Text style={styles.buttonText}>Delete</Text>
                 </TouchableOpacity>
-                
               </View>
             </View>
           </TouchableWithoutFeedback>

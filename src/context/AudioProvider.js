@@ -1,4 +1,4 @@
- import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import { Alert } from "react-native";
 import * as MediaLibrary from "expo-media-library";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -6,13 +6,17 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export const AudioContext = createContext();
 
 const STORAGE_KEY_PLAYLISTS = "@playlists";
+const STORAGE_KEY_BLOCKED_SONGS = "@blocked_songs";
+const STORAGE_KEY_QUEUE = "@queue";
 
 const AppProvider = ({ children }) => {
   const [audioFiles, setAudioFiles] = useState([]);
   const [playlists, setPlaylists] = useState([]);
-   const [permissionError, setPermissionError] = useState(false);
+  const [blockedSongs, setBlockedSongs] = useState([]);
+  const [queue, setQueue] = useState([]);
+  const [permissionError, setPermissionError] = useState(false);
 
-   const getPermission = async () => {
+  const getPermission = async () => {
     try {
       const permission = await MediaLibrary.getPermissionsAsync();
       if (permission.granted) {
@@ -31,7 +35,9 @@ const AppProvider = ({ children }) => {
       console.error("Error requesting permission: ", error);
     }
   };
-
+ const removeFromQueue = (item) => {
+   setQueue((prevQueue) => prevQueue.filter((song) => song.id !== item.id));
+ };
   const loadAudioFiles = async () => {
     try {
       const media = await MediaLibrary.getAssetsAsync({
@@ -41,6 +47,31 @@ const AppProvider = ({ children }) => {
     } catch (error) {
       console.error("Error getting audio files: ", error);
     }
+  };
+
+  const loadQueue = async () => {
+    try {
+      const queueString = await AsyncStorage.getItem(STORAGE_KEY_QUEUE);
+      if (queueString) {
+        setQueue(JSON.parse(queueString));
+      }
+    } catch (error) {
+      console.error("Error loading queue: ", error);
+    }
+  };
+
+  const saveQueue = async (queue) => {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY_QUEUE, JSON.stringify(queue));
+    } catch (error) {
+      console.error("Error saving queue: ", error);
+    }
+  };
+
+  const addToQueue = async (song) => {
+    const updatedQueue = [...queue, song];
+    setQueue(updatedQueue);
+    await saveQueue(updatedQueue);
   };
 
   const permissionAlert = () => {
@@ -59,7 +90,6 @@ const AppProvider = ({ children }) => {
     );
   };
 
-   
   const loadPlaylists = async () => {
     try {
       const playlistsString = await AsyncStorage.getItem(STORAGE_KEY_PLAYLISTS);
@@ -71,7 +101,6 @@ const AppProvider = ({ children }) => {
     }
   };
 
-  
   const savePlaylists = async (playlists) => {
     try {
       await AsyncStorage.setItem(
@@ -83,7 +112,6 @@ const AppProvider = ({ children }) => {
     }
   };
 
-   
   const addPlaylist = async (name) => {
     if (!name) {
       Alert.alert("Error", "Playlist name cannot be empty.");
@@ -94,7 +122,7 @@ const AppProvider = ({ children }) => {
     setPlaylists(updatedPlaylists);
     await savePlaylists(updatedPlaylists);
   };
- 
+
   const addToPlaylist = async (playlistId, song) => {
     const updatedPlaylists = playlists.map((pl) =>
       pl.id === playlistId ? { ...pl, songs: [...pl.songs, song] } : pl
@@ -103,7 +131,7 @@ const AppProvider = ({ children }) => {
     await savePlaylists(updatedPlaylists);
   };
 
-   const editPlaylist = async (id, newName) => {
+  const editPlaylist = async (id, newName) => {
     if (!newName) {
       Alert.alert("Error", "Playlist name cannot be empty.");
       return;
@@ -115,17 +143,47 @@ const AppProvider = ({ children }) => {
     await savePlaylists(updatedPlaylists);
   };
 
-   const deletePlaylist = async (id) => {
+  const deletePlaylist = async (id) => {
     const updatedPlaylists = playlists.filter((pl) => pl.id !== id);
     setPlaylists(updatedPlaylists);
     await savePlaylists(updatedPlaylists);
   };
 
-  
+  const loadBlockedSongs = async () => {
+    try {
+      const blockedSongsString = await AsyncStorage.getItem(
+        STORAGE_KEY_BLOCKED_SONGS
+      );
+      if (blockedSongsString) {
+        setBlockedSongs(JSON.parse(blockedSongsString));
+      }
+    } catch (error) {
+      console.error("Error loading blocked songs: ", error);
+    }
+  };
+
+  const saveBlockedSongs = async (blockedSongs) => {
+    try {
+      await AsyncStorage.setItem(
+        STORAGE_KEY_BLOCKED_SONGS,
+        JSON.stringify(blockedSongs)
+      );
+    } catch (error) {
+      console.error("Error saving blocked songs: ", error);
+    }
+  };
+
+  const addToBlockedSongs = async (song) => {
+    const updatedBlockedSongs = [...blockedSongs, song];
+    setBlockedSongs(updatedBlockedSongs);
+    await saveBlockedSongs(updatedBlockedSongs);
+  };
 
   useEffect(() => {
     getPermission();
     loadPlaylists();
+    loadBlockedSongs();
+    loadQueue();
   }, []);
 
   return (
@@ -133,11 +191,16 @@ const AppProvider = ({ children }) => {
       value={{
         audioFiles,
         playlists,
+        blockedSongs,
+        queue,
         addPlaylist,
         addToPlaylist,
         editPlaylist,
         deletePlaylist,
+        addToBlockedSongs,
+        addToQueue,
         setAudioFiles,
+        removeFromQueue
       }}
     >
       {children}
