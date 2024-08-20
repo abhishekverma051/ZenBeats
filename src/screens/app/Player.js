@@ -21,11 +21,11 @@ import { LinearGradient } from "expo-linear-gradient";
 import color from "../../miscs/color";
 import Entypo from "@expo/vector-icons/Entypo";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+ 
 import { useNavigation, useRoute } from "@react-navigation/native";
 import PlayerOptionModal from "../../components/PlayerOptionModal";
 import Slider from "@react-native-community/slider";
-import Feather from "@expo/vector-icons/Feather";
+
 import { AudioContext } from "../../context/AudioProvider";
 
 const img = require("../../assets/images/album.png");

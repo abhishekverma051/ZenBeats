@@ -18,7 +18,6 @@ const SearchBar = ({ query, onQueryChange }) => {
 const styles = StyleSheet.create({
   container: {
     padding: 10,
-      
   },
   input: {
     height: 40,
@@ -26,7 +25,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
-    backgroundColor: "white",
+    backgroundColor: "rgba(240, 240, 240, 0.8)",
   },
 });
 

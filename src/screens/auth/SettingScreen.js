@@ -14,16 +14,16 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
 export default function SettingScreen() {
   const [darkMode, setDarkMode] = useState(false);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [sEnabled, setsEnabled] = useState(true);
   const [volume, setVolume] = useState(50);
-  const navigation = useNavigation()
+  const navigation = useNavigation();
   const saveSettings = () => {
     alert("Settings saved successfully!");
   };
 
   const restoreDefaults = () => {
     setDarkMode(false);
-    setNotificationsEnabled(true);
+    setsEnabled(true);
     setVolume(50);
     alert("Defaults restored.");
   };
@@ -35,7 +35,7 @@ export default function SettingScreen() {
         size={30}
         color="white"
         onPress={() => navigation.goBack()}
-        style = {styles.button}
+        style={styles.button}
       />
       <SafeAreaView style={styles.container}>
         <Text style={styles.header}>Settings</Text>
@@ -46,11 +46,8 @@ export default function SettingScreen() {
         </View>
 
         <View style={styles.settingRow}>
-          <Text style={styles.label}>Notifications</Text>
-          <Switch
-            value={notificationsEnabled}
-            onValueChange={setNotificationsEnabled}
-          />
+          <Text style={styles.label}>Sound</Text>
+          <Switch value={sEnabled} onValueChange={setsEnabled} />
         </View>
 
         <View style={styles.settingRow}>
@@ -82,10 +79,11 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 12,
     marginRight: 12,
-    marginTop:35
+    marginTop: 35,
   },
   lg: {
     flex: 1,
+    paddingTop:32
   },
   header: {
     fontSize: 24,
@@ -110,8 +108,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
   },
-  button:{
-    marginTop:14,
-    marginLeft:12
-  }
+  button: {
+    marginTop: 14,
+    marginLeft: 12,
+  },
 });

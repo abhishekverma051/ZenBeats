@@ -9,7 +9,7 @@ const STORAGE_KEY_PLAYLISTS = "@playlists";
 const STORAGE_KEY_BLOCKED_SONGS = "@blocked_songs";
 const STORAGE_KEY_QUEUE = "@queue";
 
-const AppProvider = ({ children }) => {
+const AudioProvider = ({ children }) => {
   const [audioFiles, setAudioFiles] = useState([]);
   const [playlists, setPlaylists] = useState([]);
   const [blockedSongs, setBlockedSongs] = useState([]);
@@ -35,9 +35,7 @@ const AppProvider = ({ children }) => {
       console.error("Error requesting permission: ", error);
     }
   };
- const removeFromQueue = (item) => {
-   setQueue((prevQueue) => prevQueue.filter((song) => song.id !== item.id));
- };
+
   const loadAudioFiles = async () => {
     try {
       const media = await MediaLibrary.getAssetsAsync({
@@ -72,6 +70,10 @@ const AppProvider = ({ children }) => {
     const updatedQueue = [...queue, song];
     setQueue(updatedQueue);
     await saveQueue(updatedQueue);
+  };
+
+  const removeFromQueue = (item) => {
+    setQueue((prevQueue) => prevQueue.filter((song) => song.id !== item.id));
   };
 
   const permissionAlert = () => {
@@ -200,7 +202,7 @@ const AppProvider = ({ children }) => {
         addToBlockedSongs,
         addToQueue,
         setAudioFiles,
-        removeFromQueue
+        removeFromQueue,
       }}
     >
       {children}
@@ -208,4 +210,4 @@ const AppProvider = ({ children }) => {
   );
 };
 
-export default AppProvider;
+export default AudioProvider;

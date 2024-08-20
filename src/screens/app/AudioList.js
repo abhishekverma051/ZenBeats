@@ -9,26 +9,24 @@ import {
   Dimensions,
   TouchableWithoutFeedback,
   Alert,
+  ImageBackground,
 } from "react-native";
 import { AudioContext } from "../../context/AudioProvider";
 import Entypo from "@expo/vector-icons/Entypo";
-import { LinearGradient } from "expo-linear-gradient";
 import SearchBar from "../../components/SearchBar";
-import color from "../../miscs/color";
 import { useNavigation } from "@react-navigation/native";
 import OptionModal from "../../components/OptionModal";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import { LinearGradient } from "expo-linear-gradient";
 
-
-
-const { width } = Dimensions.get("window");
+const img = require("../../assets/images/karan.jpg");
+const { width, height } = Dimensions.get("window");
 
 const AudioList = () => {
   const { audioFiles, setAudioFiles, addToQueue } = useContext(AudioContext);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [open, setOpen] = React.useState(false);
-
   const navigation = useNavigation();
 
   const defaultImage =
@@ -87,7 +85,7 @@ const AudioList = () => {
 
   const renderItem = ({ item }) => {
     return (
-      <View style={styles.container}>
+      <View style={styles.itemContainer}>
         <TouchableWithoutFeedback onPress={() => handlePlay(item)}>
           <View style={styles.item}>
             <Image style={styles.image} source={{ uri: defaultImage }} />
@@ -110,21 +108,46 @@ const AudioList = () => {
   };
 
   return (
-    <LinearGradient colors={color.LG} style={styles.linearGradient}>
-      <View style={styles.topHead}>
-        <TouchableOpacity onPress={() => navigation.openDrawer()}>
-          <Entypo name="list" size={44} color="white" />
-        </TouchableOpacity>
+    <View style={styles.container}>
+      <View style={styles.imageContainer}>
+        <ImageBackground
+          source={img}
+          style={styles.backgroundImage}
+          resizeMode="cover"
+        >
+          <LinearGradient
+            colors={["rgba(0,0,0,0.7)", "rgba(0,0,0,0.3)"]}
+            style={styles.gradientOverlay}
+          />
+          <View style={styles.overlay}>
+            <View style={styles.topHead}>
+              <TouchableOpacity onPress={() => navigation.openDrawer()}>
+                <Entypo name="list" size={44} color="white" />
+              </TouchableOpacity>
 
-        <View style={styles.searchContainer}>
-          <SearchBar query={searchQuery} onQueryChange={setSearchQuery} />
-        </View>
+              <View style={styles.searchContainer}>
+                <SearchBar query={searchQuery} onQueryChange={setSearchQuery} />
+              </View>
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.text}>My Likes and More..</Text>
+            </View>
+          </View>
+        </ImageBackground>
+
+        <TouchableOpacity
+          onPress={() => navigation.navigate("QueueScreen")}
+          style={styles.queueButton}
+        >
+          <AntDesign name="play" size={64} color="rgba(240, 240, 240, 0.8)" />
+        </TouchableOpacity>
       </View>
 
       <FlatList
         data={filteredAudioFiles}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
+        style={styles.flatList}
       />
 
       <OptionModal
@@ -135,28 +158,53 @@ const AudioList = () => {
         onDelete={handleDelete}
         onAddToQueue={handleAddToQueue}
       />
-
-      <TouchableOpacity
-        onPress={() => navigation.navigate("QueueScreen")}
-        style={styles.queueButton}
-      >
-        <Entypo name="folder-music" size={28} color="#FFD700" />
-         
-      </TouchableOpacity>
-
-      
-    </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  imageContainer: {
+    position: "relative",
+  },
+  backgroundImage: {
+    width: width,
+    height: height * 0.6,
+  },
+  gradientOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 1,
+  },
+  overlay: {
+    flex: 1,
+    justifyContent: "flex-start",
+    padding: 15,
+  },
+  topHead: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    zIndex: 2,
+    marginTop: 22,
+  },
+  searchContainer: {
+    flex: 1,
+  },
+  textContainer: {
+    position: "absolute",
+    bottom: 20,
+    left: 15,
+    zIndex: 2,
+  },
+  itemContainer: {
     marginBottom: 10,
   },
   item: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "white",
+    backgroundColor: "rgba(240, 240, 240, 0.8)",
     borderRadius: 10,
     padding: 10,
     marginHorizontal: 10,
@@ -181,42 +229,32 @@ const styles = StyleSheet.create({
   threeDots: {
     padding: 10,
   },
-  topHead: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 15,
-    marginTop:25
-  },
-  searchContainer: {
-    flex: 1,
-  },
   queueButton: {
     position: "absolute",
-    bottom: 30,
-    right: 15,
-    backgroundColor: "grey",
+    bottom: 20,
+    right: 20,
     padding: 10,
     borderRadius: 50,
-    height:80,
-    width:80,
+
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 5,
     alignItems: "center",
-    flexDirection: "row",
-    justifyContent:"center"
-
+    justifyContent: "center",
+    zIndex: 2,
   },
-  queueButtonText: {
-    marginLeft: 5,
-    fontSize: 16,
-    color:"white"
-  },
-  linearGradient: {
+  flatList: {
     flex: 1,
+    backgroundColor: "black",
+  },
+  text: {
+    color: "white",
+    fontSize: 42,
+    lineHeight: 84,
+    fontWeight: "bold",
+    marginTop: 20,
   },
 });
 
