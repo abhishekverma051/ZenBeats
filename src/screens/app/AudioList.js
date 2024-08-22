@@ -10,6 +10,7 @@ import {
   TouchableWithoutFeedback,
   Alert,
   ImageBackground,
+  
 } from "react-native";
 import { AudioContext } from "../../context/AudioProvider";
 import Entypo from "@expo/vector-icons/Entypo";
@@ -18,8 +19,10 @@ import { useNavigation } from "@react-navigation/native";
 import OptionModal from "../../components/OptionModal";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { LinearGradient } from "expo-linear-gradient";
-
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 const img = require("../../assets/images/karan.jpg");
+import Ionicons from "@expo/vector-icons/Ionicons";
+import TranslationModal from "../../components/TranslationModal";
 const { width, height } = Dimensions.get("window");
 
 const AudioList = () => {
@@ -27,6 +30,9 @@ const AudioList = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+   const [translationModalVisible, setTranslationModalVisible] = useState(false);
+     const [selectedItemT, setSelectedItemT] = useState(null);
+
   const navigation = useNavigation();
 
   const defaultImage =
@@ -42,10 +48,17 @@ const AudioList = () => {
     }
   };
 
-  const handleThreeDotsPress = (item) => {
+  const handleThreeDotsPress = (item) => { 
     setSelectedItem(item);
     setModalVisible(true);
   };
+  const handleTranslationPress = ()=>{
+      console.log("Opening translation modal");
+    setSelectedItemT(null);
+    setTranslationModalVisible(true);
+     console.log("Modal state set to:", translationModalVisible); 
+
+  }
 
   const handlePlay = (item) => {
     navigation.navigate("Player", {
@@ -56,9 +69,13 @@ const AudioList = () => {
   };
 
   const handleAddToPlaylist = () => {
+    console.log("Selected Item:", selectedItem); 
     if (selectedItem) {
+      console.log("Navigating to SelectPlaylistScreen with:", selectedItem);
       setModalVisible(false);
       navigation.navigate("PlaylistScreen", { song: selectedItem });
+    } else {
+      console.log("No selected item to pass to SelectPlaylistScreen");
     }
   };
 
@@ -86,6 +103,7 @@ const AudioList = () => {
   const renderItem = ({ item }) => {
     return (
       <View style={styles.itemContainer}>
+        
         <TouchableWithoutFeedback onPress={() => handlePlay(item)}>
           <View style={styles.item}>
             <Image style={styles.image} source={{ uri: defaultImage }} />
@@ -125,6 +143,12 @@ const AudioList = () => {
                 <Entypo name="list" size={44} color="white" />
               </TouchableOpacity>
 
+              <TouchableOpacity style={{ margin: 12 }} onPress={()=> handleTranslationPress()}>
+                <Ionicons name="language" size={34} color="white" />
+              </TouchableOpacity>
+
+
+
               <View style={styles.searchContainer}>
                 <SearchBar query={searchQuery} onQueryChange={setSearchQuery} />
               </View>
@@ -157,6 +181,10 @@ const AudioList = () => {
         onAddToPlaylist={handleAddToPlaylist}
         onDelete={handleDelete}
         onAddToQueue={handleAddToQueue}
+      />
+      <TranslationModal
+        visible={translationModalVisible}
+        onClose={() => setTranslationModalVisible(false)}
       />
     </View>
   );
